@@ -1,0 +1,8 @@
+{
+  "name": "עושים החזר - המדינה לוקחת, אנחנו מחזירים",
+  "description": "מערכת החזרי מס דיגיטלית מתקדמת לעצמאיים ולשכירים עם מחשבון החזר מהיר, מסלול העלאת טפסים ישירים וזיהוי הטבות לפי חוקי המס בישראל.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
