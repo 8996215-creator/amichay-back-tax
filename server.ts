@@ -66,6 +66,57 @@ async function startServer() {
       const isAdvanced = !!(extraInfo?.files && extraInfo.files.length > 0);
       const filesList = isAdvanced ? extraInfo.files.map((f: any) => `<li>${f.name} (${(f.size / 1024).toFixed(1)} KB)</li>`).join("") : "";
 
+      // Generate detailed eligibility reasons helper for email body
+      const getEligibilityReasonsList = (state: any) => {
+        if (!state) return [];
+        const list: string[] = [];
+        
+        if (state.monthsWorked < 12) {
+          list.push(`עבד רק ${state.monthsWorked} חודשים מתוך 12 השנה (חוסר רציפות תעסוקתית)`);
+        }
+        if (state.isMiloimnik) {
+          list.push(`שירת במילואים פעילים השנה ${state.miloimDays ? `(${state.miloimDays} ימים)` : ''}`);
+        }
+        if (state.newChildren > 0) {
+          list.push(`נולד/ה או אומץ/ה ילד/ה במהלך השנה (${state.newChildren} ילדים חדשים)`);
+        }
+        if (state.hasUnemployment) {
+          list.push(`קיבל דמי אבטלה במהלך השנה ${state.unemploymentMonths ? `(${state.unemploymentMonths} חודשים)` : ''}`);
+        }
+        if (state.changedEmployer) {
+          list.push("החליף מעסיקים במהלך השנה ללא ביצוע תיאום מס");
+        }
+        if (state.donationsAmount > 0) {
+          list.push(`תרם למוסדות מוכרים (סעיף 46) בסך ₪${state.donationsAmount}`);
+        }
+        if (state.livedInTaxTargetArea) {
+          list.push("התגורר או עבר ליישוב מוטב מס");
+        }
+        if (state.dischargedSoldier) {
+          list.push("חייל משוחרר / מסיים שירות לאומי ב-3 השנים האחרונות");
+        }
+        if (state.finishedDegree) {
+          list.push("סיים תואר אקדמי או מקצועי בשנתיים האחרונות");
+        }
+        if (state.independentPensionDeposits) {
+          const pensionStr = state.pensionDepositAmount > 0 ? `קופת פנסיה בסך ₪${state.pensionDepositAmount}` : '';
+          const hishtalmutStr = state.hishtalmutDepositAmount > 0 ? `קרן השתלמות בסך ₪${state.hishtalmutDepositAmount}` : '';
+          const details = [pensionStr, hishtalmutStr].filter(Boolean).join(' ו-');
+          list.push(`ביצע הפקדות עצמאיות לקופת גמל/פנסיה/השתלמות ${details ? `(${details})` : ''}`);
+        }
+        if (state.childWithLearningDisabilities) {
+          list.push("הורה לילד המאובחן עם לקות למידה או בחינוך מיוחד");
+        }
+        if (state.singleParentOrDivorcedPaysAlimony) {
+          list.push("הורה יחיד או גרוש המשלם דמי מזונות");
+        }
+        if (state.newImmigrantOrReturningResident) {
+          list.push("עולה חדש או תושב חוזר ותיק");
+        }
+        
+        return list;
+      };
+
       const emailHtml = `
         <div style="direction: rtl; text-align: right; font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
           <div style="background: linear-gradient(135deg, #1e293b, #0f172a); color: #ffffff; padding: 24px; border-radius: 8px 8px 0 0; text-align: center;">
@@ -116,14 +167,21 @@ async function startServer() {
 
             ${extraInfo?.calculatorState ? `
               <h3 style="border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; margin-top: 24px; color: #0f172a; font-size: 15px;">⚙️ בחירות והגדרות במחשבון</h3>
-              <div style="font-size: 12px; color: #475569; background-color: #fafafa; padding: 12px; border-radius: 6px; line-height: 1.6;">
+              <div style="font-size: 12px; color: #475569; background-color: #fafafa; padding: 12px; border-radius: 6px; line-height: 1.6; margin-bottom: 20px;">
                 <ul style="margin: 0; padding-right: 18px;">
-                  <li>הכנסה חודשית ממוצעת: ₪${extraInfo.calculatorState.monthlySalary?.toLocaleString() || 0}</li>
+                  <li>הכנסה חודשית ממוצעת: ₪${(extraInfo.calculatorState.averageSalary || extraInfo.calculatorState.monthlySalary || 0).toLocaleString()}</li>
                   <li>שירות מילואים פעיל: ${extraInfo.calculatorState.isMiloimnik ? `כן (${extraInfo.calculatorState.miloimDays} ימים)` : 'לא'}</li>
                   <li>עולה חדש / תושב חוזר ותיק: ${extraInfo.calculatorState.newImmigrantOrReturningResident ? 'כן (נקודת זיכוי נוספת)' : 'לא'}</li>
                   <li>סיים תואר אקדמי בשנתיים האחרונות: ${extraInfo.calculatorState.finishedDegree ? 'כן (נקודת זיכוי נוספת)' : 'לא'}</li>
                   <li>ילד מאובחן עם חינוך מיוחד/לקות למידה: ${extraInfo.calculatorState.childWithLearningDisabilities ? 'כן' : 'לא'}</li>
                   <li>הורה יחיד / גרוש המשלם מזונות: ${extraInfo.calculatorState.singleParentOrDivorcedPaysAlimony ? 'כן' : 'לא'}</li>
+                </ul>
+              </div>
+
+              <h3 style="border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; margin-top: 20px; color: #0f172a; font-size: 15px;">📋 סיבות זכאות שנמצאו במחשבון</h3>
+              <div style="font-size: 13px; color: #0f172a; background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 14px; border-radius: 8px; line-height: 1.6;">
+                <ul style="margin: 0; padding-right: 18px; color: #166534; font-weight: bold;">
+                  ${getEligibilityReasonsList(extraInfo.calculatorState).map((reason: string) => `<li>✔️ ${reason}</li>`).join('') || '<li>לא זוהו סיבות זכאות ספציפיות</li>'}
                 </ul>
               </div>
             ` : ''}
@@ -135,12 +193,32 @@ async function startServer() {
         </div>
       `;
 
+      // Prepare attachments if files are sent with base64 data
+      const attachments = [];
+      if (isAdvanced && extraInfo?.files) {
+        for (const file of extraInfo.files) {
+          if (file.base64) {
+            const matches = file.base64.match(/^data:(.+);base64,(.+)$/);
+            if (matches) {
+              const contentType = matches[1];
+              const base64Data = matches[2];
+              attachments.push({
+                filename: file.name,
+                content: Buffer.from(base64Data, "base64"),
+                contentType: contentType
+              });
+            }
+          }
+        }
+      }
+
       // Send email
       await transporter.sendMail({
         from: `"${smtpUser}" <${smtpUser}>`,
         to: notificationEmail,
         subject: `🎉 לידית חדשה במחשבון: ${lead.fullName} (₪${estimate.toLocaleString()})`,
-        html: emailHtml
+        html: emailHtml,
+        attachments: attachments
       });
 
       console.log(`✉️ Notification email successfully delivered to ${notificationEmail}`);

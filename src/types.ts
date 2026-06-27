@@ -28,6 +28,8 @@ export interface UploadedFile {
   type: string;
   status: 'idle' | 'uploading' | 'completed' | 'failed';
   progress: number;
+  base64?: string;
+  rawFile?: File;
 }
 
 export interface LeadDetails {

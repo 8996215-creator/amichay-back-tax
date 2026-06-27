@@ -33,6 +33,61 @@ export default function App() {
 
   // Send Lead details and calculation info to backend to trigger SMTP Email
   const sendLeadToBackend = async (lead: LeadDetails, estimate: number, extraInfo?: any) => {
+    // Helper to generate Hebrew eligibility reasons based on calculator state
+    const getEligibilityReasonsList = (state: any) => {
+      if (!state) return [];
+      const list: string[] = [];
+      
+      if (state.monthsWorked < 12) {
+        list.push(`עבד רק ${state.monthsWorked} חודשים מתוך 12 השנה (חוסר רציפות תעסוקתית)`);
+      }
+      if (state.isMiloimnik) {
+        list.push(`שירת במילואים פעילים השנה ${state.miloimDays ? `(${state.miloimDays} ימים)` : ''}`);
+      }
+      if (state.newChildren > 0) {
+        list.push(`נולד/ה או אומץ/ה ילד/ה במהלך השנה (${state.newChildren} ילדים חדשים)`);
+      }
+      if (state.hasUnemployment) {
+        list.push(`קיבל דמי אבטלה במהלך השנה ${state.unemploymentMonths ? `(${state.unemploymentMonths} חודשים)` : ''}`);
+      }
+      if (state.changedEmployer) {
+        list.push("החליף מעסיקים במהלך השנה ללא ביצוע תיאום מס");
+      }
+      if (state.donationsAmount > 0) {
+        list.push(`תרם למוסדות מוכרים (סעיף 46) בסך ₪${state.donationsAmount}`);
+      }
+      if (state.livedInTaxTargetArea) {
+        list.push("התגורר או עבר ליישוב מוטב מס");
+      }
+      if (state.dischargedSoldier) {
+        list.push("חייל משוחרר / מסיים שירות לאומי ב-3 השנים האחרונות");
+      }
+      if (state.finishedDegree) {
+        list.push("סיים תואר אקדמי או מקצועי בשנתיים האחרונות");
+      }
+      if (state.independentPensionDeposits) {
+        const pensionStr = state.pensionDepositAmount > 0 ? `קופת פנסיה בסך ₪${state.pensionDepositAmount}` : '';
+        const hishtalmutStr = state.hishtalmutDepositAmount > 0 ? `קרן השתלמות בסך ₪${state.hishtalmutDepositAmount}` : '';
+        const details = [pensionStr, hishtalmutStr].filter(Boolean).join(' ו-');
+        list.push(`ביצע הפקדות עצמאיות לקופת גמל/פנסיה/השתלמות ${details ? `(${details})` : ''}`);
+      }
+      if (state.childWithLearningDisabilities) {
+        list.push("הורה לילד המאובחן עם לקות למידה או בחינוך מיוחד");
+      }
+      if (state.singleParentOrDivorcedPaysAlimony) {
+        list.push("הורה יחיד או גרוש המשלם דמי מזונות");
+      }
+      if (state.newImmigrantOrReturningResident) {
+        list.push("עולה חדש או תושב חוזר ותיק");
+      }
+      
+      return list;
+    };
+
+    // Calculate eligibility reasons
+    const reasons = getEligibilityReasonsList(extraInfo?.calculatorState);
+    const eligibilityReasonsStr = reasons.join(', ');
+
     // 1. Send via local full-stack server (Docker/Cloud Run Environment)
     try {
       const response = await fetch('/api/send-email', {
@@ -57,31 +112,48 @@ export default function App() {
       const isAdvanced = !!(extraInfo?.files && extraInfo.files.length > 0);
       const formName = isAdvanced ? 'advanced-file-lead' : 'tax-lead';
       
-      const formData: Record<string, string> = {
-        'form-name': formName,
-        'fullName': lead.fullName || '',
-        'email': lead.email || '',
-        'phone': lead.phone || '',
-        'taxYear': lead.taxYear || '',
-        'comments': lead.comments || ''
-      };
+      const formData = new FormData();
+      formData.append('form-name', formName);
+      formData.append('fullName', lead.fullName || '');
+      formData.append('email', lead.email || '');
+      formData.append('phone', lead.phone || '');
+      formData.append('taxYear', lead.taxYear || '');
+      formData.append('comments', lead.comments || '');
+      formData.append('eligibilityReasons', eligibilityReasonsStr);
 
       if (isAdvanced) {
-        formData['attachmentsList'] = extraInfo.files.map((f: any) => `${f.name} (${(f.size / 1024).toFixed(1)} KB)`).join(', ');
+        formData.append('attachmentsList', extraInfo.files.map((f: any) => `${f.name} (${(f.size / 1024).toFixed(1)} KB)`).join(', '));
+        // Append actual file objects to form data
+        extraInfo.files.forEach((file: any, index: number) => {
+          if (file.rawFile) {
+            formData.append(`file${index + 1}`, file.rawFile);
+          }
+        });
+
+        // Submit files as multipart/form-data
+        await fetch('/', {
+          method: 'POST',
+          body: formData
+        });
       } else {
-        formData['estimate'] = String(estimate);
-        formData['isMiloimnik'] = extraInfo?.calculatorState?.isMiloimnik ? 'כן' : 'לא';
-        formData['extraDetails'] = extraInfo?.calculatorState ? JSON.stringify(extraInfo?.calculatorState) : '';
+        formData.append('estimate', String(estimate));
+        formData.append('isMiloimnik', extraInfo?.calculatorState?.isMiloimnik ? 'כן' : 'לא');
+        formData.append('extraDetails', extraInfo?.calculatorState ? JSON.stringify(extraInfo?.calculatorState) : '');
+
+        // Convert back to url-encoded for standard text leads
+        const params: Record<string, string> = {};
+        formData.forEach((value, key) => {
+          if (typeof value === 'string') {
+            params[key] = value;
+          }
+        });
+        
+        await fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(params).toString()
+        });
       }
-
-      // Encode the data as application/x-www-form-urlencoded
-      const encodedBody = new URLSearchParams(formData).toString();
-
-      await fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: encodedBody
-      });
       console.log('Netlify Form submission dispatched successfully for form:', formName);
     } catch (err) {
       console.error('Failed to dispatch Netlify Form submission:', err);
@@ -321,7 +393,7 @@ export default function App() {
                     {/* Proof element */}
                     <div className="flex items-center gap-2 pt-2 text-xs text-slate-400">
                       <UserCheck className="w-4 h-4 text-emerald-400" />
-                      <span>מעל 14,200 לוחמי מילואים ואזרחים כבר קיבלו את כספם מצוות מומחי המס.</span>
+                      <span>מעל 500 לוחמי מילואים ואזרחים כבר קיבלו את כספם מצוות מומחי המס.</span>
                     </div>
                   </div>
 
@@ -466,7 +538,13 @@ export default function App() {
               <AdvancedUploader 
                 onSuccessUpload={(files, lead) => {
                   setLeadModal({ show: true, name: lead.fullName, estimate: 8450 });
-                  const mappedFiles = files.map(f => ({ name: f.name, size: f.size }));
+                  const mappedFiles = files.map(f => ({ 
+                    name: f.name, 
+                    size: f.size,
+                    type: f.type,
+                    base64: f.base64,
+                    rawFile: f.rawFile
+                  }));
                   sendLeadToBackend(lead, 8450, { files: mappedFiles });
                 }} 
               />
@@ -607,13 +685,8 @@ export default function App() {
               <ul className="space-y-2.5 text-xs text-slate-400">
                 <li className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-amber-500 scale-x-[-1]" />
-                  <span>טלפון תמיכה: 073-512-3400</span>
+                  <span>טלפון: 058-7979068</span>
                 </li>
-                <li className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-amber-500" />
-                  <span>אימייל: support@tax-refund-miloim.co.il</span>
-                </li>
-                <li className="text-[10px]">מגדלי עזריאלי 3, קומה 24, תל אביב-יפו</li>
               </ul>
             </div>
 

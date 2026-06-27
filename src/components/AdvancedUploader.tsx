@@ -58,10 +58,23 @@ export default function AdvancedUploader({ onSuccessUpload }: AdvancedUploaderPr
         size: f.size,
         type: f.type,
         status: 'uploading',
-        progress: 0
+        progress: 0,
+        rawFile: f
       };
       
       newFiles.push(newFile);
+      
+      // Read file content as base64 asynchronously
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64Data = event.target?.result as string;
+        setFiles(current =>
+          current.map(item =>
+            item.id === fileId ? { ...item, base64: base64Data } : item
+          )
+        );
+      };
+      reader.readAsDataURL(f);
       
       // Simulated upload progress animation
       let currentProgress = 0;
