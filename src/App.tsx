@@ -19,6 +19,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import { ActivePage, LeadDetails, UploadedFile } from './types';
+import { formatCalculatorStateToHebrew } from './utils';
 import TaxCalculator from './components/TaxCalculator';
 import AdvancedUploader from './components/AdvancedUploader';
 import WhyUsSection from './components/WhyUsSection';
@@ -138,7 +139,7 @@ export default function App() {
       } else {
         formData.append('estimate', String(estimate));
         formData.append('isMiloimnik', extraInfo?.calculatorState?.isMiloimnik ? 'כן' : 'לא');
-        formData.append('extraDetails', extraInfo?.calculatorState ? JSON.stringify(extraInfo?.calculatorState) : '');
+        formData.append('extraDetails', extraInfo?.calculatorState ? formatCalculatorStateToHebrew(extraInfo.calculatorState) : '');
 
         // Convert back to url-encoded for standard text leads
         const params: Record<string, string> = {};
@@ -402,7 +403,7 @@ export default function App() {
                     <div className="flex justify-between items-center text-xs text-slate-400">
                       <span className="font-bold flex items-center gap-1">
                         <Lock className="w-3.5 h-3.5 text-emerald-400" />
-                        מאובטח בתקן בנקאי
+                        מאובטח ברמה הגבוה ביותר
                       </span>
                       <span>חישוב דינמי</span>
                     </div>

@@ -21,6 +21,7 @@ import {
   X
 } from 'lucide-react';
 import { CalculatorState, LeadDetails } from '../types';
+import { formatCalculatorStateToHebrew } from '../utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface TaxCalculatorProps {
@@ -980,7 +981,7 @@ export default function TaxCalculator({ onSuccessSubmit, isMiloimOverride = fals
                   <input type="hidden" name="estimate" value={estimatedRefund} />
                   <input type="hidden" name="isMiloimnik" value={inputs.isMiloimnik ? 'כן' : 'לא'} />
                   <input type="hidden" name="comments" value="" />
-                  <input type="hidden" name="extraDetails" value={JSON.stringify(inputs)} />
+                  <input type="hidden" name="extraDetails" value={formatCalculatorStateToHebrew(inputs)} />
 
                   <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-2">
                     <span className="font-bold text-slate-800">לקבלת ההחזר - הזן פרטים:</span>

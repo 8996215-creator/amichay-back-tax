@@ -443,7 +443,7 @@ export default function AdvancedUploader({ onSuccessUpload }: AdvancedUploaderPr
 
             <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl text-right max-w-md mx-auto space-y-2">
               <div className="flex justify-between items-center text-xs text-slate-400 border-b border-slate-800 pb-2 mb-2 font-bold">
-                <span>מנהל התיק: רו״ח שירן פרץ</span>
+                <span>מנהל התיק: רו״ח אליעזר לנדר</span>
                 <span className="text-emerald-400">● ניתוח פעיל</span>
               </div>
               <p className="text-xs text-slate-300"><strong>שנת מס שנשלחה:</strong> {leadDetails.taxYear}</p>
