@@ -25,6 +25,7 @@ import AdvancedUploader from './components/AdvancedUploader';
 import WhyUsSection from './components/WhyUsSection';
 import BenefitsDetails from './components/BenefitsDetails';
 import PricingSection from './components/PricingSection';
+import BrandLogo from './components/BrandLogo';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
@@ -188,18 +189,12 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             
-            {/* Direct Logo & slogan */}
+            {/* Direct Logo (Standalone without text) */}
             <div 
               onClick={() => setActiveTab('home')} 
-              className="flex items-center gap-2.5 cursor-pointer select-none group"
+              className="cursor-pointer select-none group flex items-center"
             >
-              <div className="w-11 h-11 bg-slate-900 text-white rounded-xl flex items-center justify-center font-display font-black text-lg shadow-md group-hover:scale-105 transition-transform duration-200">
-                עושים
-              </div>
-              <div>
-                <h1 className="text-xl md:text-2xl font-black font-display text-slate-900 leading-tight">עושים החזר</h1>
-                <p className="text-[10px] text-slate-500 font-bold tracking-tight">המדינה לוקחת, אנחנו מחזירים</p>
-              </div>
+              <BrandLogo size="md" />
             </div>
 
             {/* Desktop Navigation Links */}
@@ -638,14 +633,11 @@ export default function App() {
             
             {/* Branding widget */}
             <div className="space-y-4 font-mono">
-              <div className="flex items-center gap-2">
-                <div className="w-9 h-9 bg-white text-slate-950 rounded-lg flex items-center justify-center font-display font-black text-[11px]">
-                  עושים
-                </div>
-                <div>
-                  <h3 className="text-lg font-black font-display text-white">עושים החזר</h3>
-                  <p className="text-[9px] text-slate-400">המדינה לוקחת, אנחנו מחזירים</p>
-                </div>
+              <div 
+                onClick={() => setActiveTab('home')}
+                className="cursor-pointer select-none group inline-flex items-center"
+              >
+                <BrandLogo size="md" variant="monochrome" />
               </div>
               <p className="text-xs text-slate-400">
                 מערכת השוואת מס דיגיטלית ישירה הפועלת בהתאמה מלאה לפקודת מס הכנסה ומסלולי שינויי העסקה בישראל.
