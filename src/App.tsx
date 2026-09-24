@@ -352,11 +352,6 @@ export default function App() {
                   
                   {/* Marketing text (7 spans) */}
                   <div className="lg:col-span-7 space-y-6">
-                    <span className="px-3.5 py-1.5 bg-slate-900 border border-slate-800 text-white text-xs font-extrabold rounded-full inline-flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                      הספק הדיגיטלי המוביל בישראל לשנת מס 2024-2025
-                    </span>
-                    
                     <h2 className="text-4xl md:text-6xl font-black font-display tracking-tight leading-tight md:leading-tight text-white">
                       המדינה לוקחת, <br className="hidden md:inline" />
                       <span className="text-transparent bg-clip-text bg-gradient-to-l from-orange-400 to-amber-300">
