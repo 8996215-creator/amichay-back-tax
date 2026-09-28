@@ -1,0 +1,22 @@
+# Netlify reads this file on every deploy; it overrides the build settings in the Netlify UI.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# No SPA redirect is needed: the app uses hash routes (/#/calculator), so every page is "/".
+# Leaving one out also keeps Netlify Forms POSTs to "/" untouched.
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"

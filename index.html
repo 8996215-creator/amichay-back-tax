@@ -1,43 +1,74 @@
 <!doctype html>
-<html lang="en">
+<html lang="he" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>עושים החזר - המדינה לוקחת, אנחנו מחזירים</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#F6F7FB" />
+    <script>
+      (function () {
+        try {
+          var m = localStorage.getItem('landers-tax.theme');
+          var dark = m === 'dark' || (m !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+          var tc = document.querySelector('meta[name="theme-color"]');
+          if (tc) tc.setAttribute('content', dark ? '#0B1226' : '#F6F7FB');
+        } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
+      })();
+    </script>
+    <title>מיסי לנדר | בדיקת זכאות להחזר מס לשכירים ולמשרתי מילואים</title>
+    <meta name="description" content="בדיקה חינמית ומהירה של זכאות להחזר מס לשכירים ולמשרתי מילואים. ללא תשלום מקדים, עמלה רק אם קיבלתם החזר." />
+    <meta property="og:title" content="מיסי לנדר | החזרי מס לשכירים ולמשרתי מילואים" />
+    <meta property="og:description" content="בודקים תוך דקות אם מגיע לכם החזר מס. ללא תשלום מקדים." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/og-logo.png" />
+    <meta property="og:locale" content="he_IL" />
+    <link rel="icon" type="image/svg+xml" href="/logo-color.svg" />
+    <link rel="apple-touch-icon" href="/og-logo.png" />
   </head>
   <body>
-    <!-- Netlify Forms Crawl Targets (Hidden) -->
-    <form name="tax-lead" data-netlify="true" netlify-honeypot="bot-field" hidden>
-      <input type="text" name="form-name" value="tax-lead" />
-      <input type="text" name="fullName" />
-      <input type="email" name="email" />
+    <!--
+      Netlify Forms detection. The real forms are rendered by React, so Netlify cannot see them
+      at deploy time; these hidden copies register the form names and fields.
+      Keep the names and fields in sync with src/lib/leads.ts.
+    -->
+    <form name="tax-lead" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="tax-lead" />
+      <input name="bot-field" />
+      <input name="source" />
+      <input name="fullName" />
       <input type="tel" name="phone" />
-      <input type="text" name="taxYear" />
-      <input type="number" name="estimate" />
-      <input type="text" name="isMiloimnik" />
-      <input type="text" name="comments" />
-      <input type="text" name="extraDetails" />
-      <input type="text" name="eligibilityReasons" />
+      <input type="email" name="email" />
+      <input name="taxYear" />
+      <input name="estimate" />
+      <input name="isMiloimnik" />
+      <textarea name="comments"></textarea>
+      <textarea name="extraDetails"></textarea>
+      <textarea name="eligibilityReasons"></textarea>
+      <input name="consent" />
     </form>
-
-    <form name="advanced-file-lead" data-netlify="true" netlify-honeypot="bot-field" hidden>
-      <input type="text" name="form-name" value="advanced-file-lead" />
-      <input type="text" name="fullName" />
-      <input type="email" name="email" />
+    <form name="advanced-file-lead" method="POST" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" hidden>
+      <input type="hidden" name="form-name" value="advanced-file-lead" />
+      <input name="bot-field" />
+      <input name="source" />
+      <input name="fullName" />
       <input type="tel" name="phone" />
-      <input type="text" name="taxYear" />
-      <input type="text" name="comments" />
-      <input type="text" name="attachmentsList" />
-      <input type="text" name="eligibilityReasons" />
+      <input type="email" name="email" />
+      <input name="taxYear" />
+      <input name="estimate" />
+      <input name="isMiloimnik" />
+      <textarea name="comments"></textarea>
+      <textarea name="attachmentsList"></textarea>
+      <textarea name="extraDetails"></textarea>
+      <textarea name="eligibilityReasons"></textarea>
+      <input name="consent" />
       <input type="file" name="file1" />
       <input type="file" name="file2" />
       <input type="file" name="file3" />
       <input type="file" name="file4" />
       <input type="file" name="file5" />
     </form>
-
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

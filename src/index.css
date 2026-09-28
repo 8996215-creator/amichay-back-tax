@@ -1,25 +1,361 @@
-@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&family=Secular+One&display=swap');
 @import "tailwindcss";
+@import "@fontsource-variable/rubik";
 
-@theme {
-  --font-sans: 'Rubik', sans-serif;
-  --font-display: 'Secular One', 'Rubik', sans-serif;
+/* ---------------------------------------------------------------------------
+   Landers Tax design tokens
+   Appearance is resolved to html[data-theme="light|dark"] by a tiny inline
+   script in index.html (system by default, user override in localStorage).
+   Contrast figures are against the surface they are meant for.
+--------------------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+
+  --bg: #f6f7fb;           /* page                                   */
+  --surface: #ffffff;      /* cards                                  */
+  --surface-2: #eef1f7;    /* quiet fills, input tracks              */
+  --ink: #142347;          /* primary text, 14.6:1 on white          */
+  --ink-2: #4a5878;        /* secondary text, 7.1:1                  */
+  --ink-3: #66728f;        /* tertiary text, 4.8:1                   */
+  --line: #dde2ee;
+  --line-strong: #c3cbdd;
+
+  --navy: #142347;         /* brand fill                             */
+  --backdrop-blue: #142347; /* background slab: dark blue on light    */
+  --ink-brand: #142347;    /* brand-coloured display text            */
+  --on-navy: #ffffff;      /* 15.4:1                                 */
+  --on-navy-2: #b8c2dc;    /* 8.9:1                                  */
+  --navy-2: #1c2f5c;       /* raised fill on navy                    */
+
+  --accent: #ff6900;       /* brand orange: fills, display numbers   */
+  --on-accent: #142347;    /* navy label on orange, 5.3:1            */
+  --accent-text: #c24e00;  /* orange as small text on light, 4.8:1   */
+  --accent-soft: #fff1e6;
+
+  --success: #1b7f4b;
+  --success-soft: #e6f4ec;
+  --danger: #b3261e;
+  --danger-soft: #fbeae8;
+
+  --shadow-1: 0 1px 2px rgb(20 35 71 / 0.06), 0 4px 16px rgb(20 35 71 / 0.06);
+  --shadow-2: 0 2px 6px rgb(20 35 71 / 0.08), 0 16px 48px rgb(20 35 71 / 0.12);
+  --glass-fill: rgb(255 255 255 / 0.68);
+  --glass-line: rgb(20 35 71 / 0.10);
+  --glass-highlight: rgb(255 255 255 / 0.65);
+  --card-fill: rgb(255 255 255 / 0.62);
+  --card-fill-2: rgb(255 255 255 / 0.40);
+  --card-navy-fill: rgb(20 35 71 / 0.86);
+  --scrim: rgb(11 18 38 / 0.4);
 }
 
-body {
-  font-family: var(--font-sans);
-  direction: rtl;
-  text-align: right;
-  background-color: #f8fafc;
-  color: #1e293b;
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0b1226;
+    --surface: #131c36;
+    --surface-2: #1b2646;
+    --ink: #e8ecf6;
+    --ink-2: #aeb8d2;
+    --ink-3: #8794b4;
+    --line: #26314f;
+    --line-strong: #364468;
+
+    --navy: #1b2646;
+    --backdrop-blue: #9fb0dc; /* background slab: light blue on dark */
+    --ink-brand: #9fb0dc;
+    --on-navy: #ffffff;
+    --on-navy-2: #aeb8d2;
+    --navy-2: #24325a;
+
+    --accent: #ff7a1f;
+    --on-accent: #0b1226;
+    --accent-text: #ff9a52;
+    --accent-soft: #2a1f18;
+
+    --success: #4fc98a;
+    --success-soft: #14302a;
+    --danger: #ff8a80;
+    --danger-soft: #3a1f1d;
+
+    --shadow-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px rgb(0 0 0 / 0.3);
+    --shadow-2: 0 2px 6px rgb(0 0 0 / 0.35), 0 16px 48px rgb(0 0 0 / 0.45);
+    --glass-fill: rgb(19 28 54 / 0.66);
+    --glass-line: rgb(255 255 255 / 0.10);
+    --glass-highlight: rgb(255 255 255 / 0.08);
+    --card-fill: rgb(19 28 54 / 0.55);
+    --card-fill-2: rgb(27 38 70 / 0.45);
+    --card-navy-fill: rgb(27 38 70 / 0.72);
+    --scrim: rgb(0 0 0 / 0.55);
 }
 
-/* Custom secure bank vault styling properties */
-.vault-gradient {
-  background: radial-gradient(circle at top left, #1e293b 0%, #0f172a 100%);
+@theme inline {
+  --font-sans: "Rubik Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-navy: var(--navy);
+  --color-ink-brand: var(--ink-brand);
+  --text-hero: clamp(2.5rem, 6vw, 3.75rem);
+  --color-navy-2: var(--navy-2);
+  --color-on-navy: var(--on-navy);
+  --color-on-navy-2: var(--on-navy-2);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-accent-text: var(--accent-text);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  --shadow-1: var(--shadow-1);
+  --shadow-2: var(--shadow-2);
+
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.75rem;
+  --radius-3xl: 2.25rem;
+
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.3, 0.64, 1);
 }
 
-.vault-shine {
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-bg text-ink font-sans antialiased;
+    font-feature-settings: "tnum" 0;
+    line-height: 1.55;
+    overflow-x: clip;
+  }
+  ::selection {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 0.5rem;
+  }
+  button, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  strong { font-weight: 600; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }
 
+@utility tnum {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Frosted glass, functional layer only (nav, dock, sheets). */
+@utility glass {
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(24px) saturate(1.4);
+  border: 1px solid var(--glass-line);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), var(--shadow-1);
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    background: var(--surface);
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  @media (prefers-contrast: more) {
+    background: var(--surface);
+    border-color: var(--line-strong);
+  }
+}
+
+/* Content-layer glass for cards: lighter blur than the nav so text stays crisp. */
+@utility glass-card {
+  background: var(--card-fill);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
+  backdrop-filter: blur(18px) saturate(1.3);
+  border: 1px solid var(--glass-line);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), var(--shadow-1);
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { background: var(--surface); }
+  @media (prefers-reduced-transparency: reduce) { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  @media (prefers-contrast: more) { background: var(--surface); border-color: var(--line-strong); }
+}
+@utility glass-card-2 {
+  background: var(--card-fill-2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
+  backdrop-filter: blur(18px) saturate(1.3);
+  border: 1px solid var(--glass-line);
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { background: var(--surface-2); }
+  @media (prefers-reduced-transparency: reduce) { background: var(--surface-2); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  @media (prefers-contrast: more) { background: var(--surface-2); border-color: var(--line-strong); }
+}
+@utility glass-navy {
+  background: var(--card-navy-fill);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  backdrop-filter: blur(20px) saturate(1.3);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14), inset 0 0 0 1px rgb(255 255 255 / 0.07), var(--shadow-2);
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { background: var(--navy); }
+  @media (prefers-reduced-transparency: reduce) { background: var(--navy); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  @media (prefers-contrast: more) { background: var(--navy); }
+}
+
+/* Hairline top edge that reads like a glass rim on navy. */
+@utility rim {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), inset 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
+/* Range input: track in surface-2, thumb in accent, 28px hit target. */
+input[type="range"].lt-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 44px;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"].lt-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(to left, var(--accent) 0 var(--fill, 0%), var(--track, var(--surface-2)) var(--fill, 0%) 100%);
+}
+input[type="range"].lt-range::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--track, var(--surface-2));
+}
+input[type="range"].lt-range::-moz-range-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+input[type="range"].lt-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  margin-top: -9px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  box-shadow: 0 1px 3px rgb(20 35 71 / 0.25);
+  transition: transform 160ms var(--ease-out-quint);
+}
+input[type="range"].lt-range::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  box-shadow: 0 1px 3px rgb(20 35 71 / 0.25);
+}
+input[type="range"].lt-range:active::-webkit-slider-thumb { transform: scale(1.12); }
+input[type="range"].lt-range.on-navy { --track: rgb(255 255 255 / 0.18); }
+input[type="range"].lt-range:focus-visible { outline-offset: 0; border-radius: 999px; }
+
+/* Number inputs: no spinners, we render our own steppers. */
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* Background art: logo-derived rounded bars, static and cheap (no filter: blur). */
+.lt-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(60rem 40rem at 85% -10%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 60%),
+    radial-gradient(50rem 36rem at -10% 110%, color-mix(in srgb, var(--navy) 10%, transparent), transparent 60%);
+}
+
+/* Theme switch, preferred path: a whole-page crossfade via the View Transitions API. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 450ms;
+  animation-timing-function: ease-in-out;
+}
+
+/* Theme switch, fallback for browsers without View Transitions: for ~0.45s every colour eases instead of snapping. Opacity and transform are
+   left alone so motion-driven animations keep their own timing. */
+[data-theme-switching],
+[data-theme-switching] *,
+[data-theme-switching] *::before,
+[data-theme-switching] *::after {
+  transition:
+    background-color 450ms ease-in-out,
+    color 450ms ease-in-out,
+    border-color 450ms ease-in-out,
+    fill 450ms ease-in-out,
+    stroke 450ms ease-in-out,
+    box-shadow 450ms ease-in-out,
+    outline-color 450ms ease-in-out !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-theme-switching], [data-theme-switching] *,
+  [data-theme-switching] *::before, [data-theme-switching] *::after { transition: none !important; }
+}
+.lt-backdrop::before,
+.lt-backdrop::after {
+  content: "";
+  position: absolute;
+  border-radius: 2.5rem;
+  filter: blur(16px);
+  will-change: transform;
+}
+.lt-backdrop::before {
+  width: 26rem; height: 46rem;
+  inset-inline-end: 8%; top: -14rem;
+  background: color-mix(in srgb, var(--accent) 11%, transparent);
+  transform: rotate(14deg);
+  animation: lt-drift-a 28s ease-in-out infinite alternate;
+}
+.lt-backdrop::after {
+  width: 46rem; height: 22rem;
+  inset-inline-start: -10rem; bottom: -6rem;
+  background: color-mix(in srgb, var(--backdrop-blue) 18%, transparent);
+  transform: rotate(-8deg);
+  animation: lt-drift-b 34s ease-in-out infinite alternate;
+}
+@keyframes lt-drift-a { to { transform: rotate(10deg) translate3d(-2rem, 3rem, 0); } }
+@keyframes lt-drift-b { to { transform: rotate(-5deg) translate3d(3rem, -2rem, 0); } }
+@media (prefers-reduced-motion: reduce) {
+  .lt-backdrop::before, .lt-backdrop::after { animation: none; }
+}
+
+/* Scroll edge: content fades into the glass nav instead of colliding. */
+.lt-scroll-edge {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  height: 5.5rem;
+  z-index: 30;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--bg), transparent);
+  opacity: 0;
+  transition: opacity 240ms var(--ease-out-quint);
+}
+[data-scrolled="true"] .lt-scroll-edge { opacity: 0.9; }
